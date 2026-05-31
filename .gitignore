@@ -1,6 +1,7 @@
 # Environment
 .env
 .venv/
+.venv-tools/
 .tools/
 
 # Python

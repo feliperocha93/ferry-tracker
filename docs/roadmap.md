@@ -21,14 +21,14 @@ Fase 4   →  Machine Learning (se justificado)
 
 **Entregáveis:**
 
-- [ ] Parser HTML para as 4 rotas (8 sentidos)
-- [ ] Modelo `wait_time_observations` + migração Alembic
-- [ ] Job de coleta com retry e `scrape_status`
-- [ ] GitHub Actions workflow (cron :00/:30)
+- [ ] Parser HTML para as 4 rotas (8 sentidos) — `src/crawler/parsers/`
+- [ ] Modelo `wait_time_observations` + migração Alembic — `src/core/`
+- [ ] Job de coleta com retry e `scrape_status` — `src/crawler/jobs/`
+- [ ] GitHub Actions workflow (cron :00/:30) + CI de testes
 - [ ] Neon PostgreSQL provisionado (Terraform prod)
 - [ ] Docker Compose para dev local
-- [ ] Testes de parser com fixtures HTML
-- [ ] Alertas por e-mail (parse error + DB stale)
+- [ ] Testes de parser com fixtures HTML — `src/crawler/tests/`
+- [ ] Alertas por e-mail (parse error + DB stale) — `src/core/utils/`
 
 **Duração estimada:** 1–2 semanas de implementação.
 
@@ -43,8 +43,8 @@ Detalhes técnicos: [architecture.md](./architecture.md)
 **Entregáveis:**
 
 - [ ] 30 dias de coleta estável (critérios de sucesso atingidos)
-- [ ] Relatório simples de qualidade (taxa de sucesso, gaps, distribuição de `wait_minutes`)
-- [ ] Ajustes de parser se layout mudar
+- [ ] `scripts/quality_report.py` — relatório (taxa de sucesso, gaps, distribuição de `wait_minutes`)
+- [ ] Ajustes de parser se layout mudar (`src/crawler/parsers/`)
 
 **Duração sugerida:** 2 a 3 meses de coleta antes de qualquer decisão sobre ML.
 

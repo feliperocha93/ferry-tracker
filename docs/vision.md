@@ -81,6 +81,7 @@ Prever o tempo de espera da travessia utilizando histórico de dados coletados a
 * Infraestrutura mínima.
 * Custos próximos de zero durante o MVP.
 * Arquitetura monolítica modular.
+* Código de aplicação em `src/` (`core`, `crawler`, `api`); ML exploratório em `ml/`.
 * **Foco atual: Crawler** — nada de API ou ML até a coleta estar estável.
 
 ---

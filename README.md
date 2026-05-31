@@ -72,13 +72,18 @@ Ver [`.env.example`](.env.example).
 
 ```text
 ferry-wait/
-├── crawler/       # coleta e parse HTML
-├── shared/        # models, database, utils
+├── src/
+│   ├── core/      # models, database, utils
+│   ├── crawler/   # coleta e parse HTML
+│   └── api/       # FastAPI (fase 1+)
+├── ml/            # notebooks e experimentos (fase 2+)
+├── scripts/       # utilitários operacionais
 ├── docker/        # Docker Compose (Postgres local)
 ├── docs/          # documentação do projeto
-├── scripts/       # utilitários
 └── terraform/     # infra prod (fase 0.6+)
 ```
+
+Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Fase atual
 

@@ -52,6 +52,29 @@ Local usa Docker Compose — sem Terraform.
 
 ---
 
+## Organização do código (`src/`)
+
+Código de aplicação vive em **`src/`**. Infra, docs e código exploratório ficam na raiz.
+
+| Local | Conteúdo | Motivo |
+|-------|----------|--------|
+| `src/core/` | Models, database, utils | Domínio transversal (ex-`shared/`) |
+| `src/crawler/` | Collectors, parsers, jobs | Coleta SEMIL |
+| `src/api/` | Routes, services, schemas *(fase 1)* | API FastAPI |
+| `ml/` | Notebooks, experiments *(fase 2+)* | Exploratório — fora do pacote instalável |
+| `scripts/` | Wrappers operacionais | Chamam módulos via `uv run python -m ...` |
+| `docs/`, `docker/`, `terraform/`, `.github/` | Infra e documentação | Não é código de domínio |
+
+**Imports:** pacotes top-level `core` e `crawler` (com `src/` no `PYTHONPATH` / config do pytest).
+
+**Testes:** co-located em `src/<pacote>/tests/` (ex.: `src/crawler/tests/`).
+
+**CLI:** `python -m crawler.jobs.run` (Makefile: `make crawl`, `make crawl-dry`).
+
+**Alembic:** `src/core/database/alembic.ini` (Makefile: `make migrate`).
+
+---
+
 ## Crawler
 
 > **Prioridade atual do projeto.** Tudo mais depende da qualidade e continuidade desta coleta.
@@ -121,6 +144,7 @@ jobs:
     timeout-minutes: 5
     env:
       TZ: America/Sao_Paulo
+    # steps: setup-uv → uv sync → uv run python -m crawler.jobs.run --save
 ```
 
 **Secrets:**
@@ -157,6 +181,32 @@ jobs:
 ```text
 ferry-wait/
 │
+├── src/                         # código de aplicação
+│   ├── core/                    # models, database, utils
+│   │   ├── database/            # session, alembic, repository
+│   │   ├── models/
+│   │   └── utils/               # time_slots, alerts
+│   ├── crawler/
+│   │   ├── collectors/
+│   │   ├── parsers/
+│   │   │   └── fixtures/
+│   │   ├── jobs/
+│   │   └── tests/
+│   └── api/                     # fase 1
+│       ├── routes/
+│       ├── services/
+│       ├── schemas/
+│       ├── repositories/
+│       └── tests/
+│
+├── ml/                          # fase 2+ (fora de src/)
+│   ├── notebooks/
+│   ├── experiments/
+│   ├── training/
+│   └── evaluation/
+│
+├── scripts/                     # utilitários operacionais
+│
 ├── docs/
 │   ├── vision.md
 │   ├── architecture.md
@@ -175,41 +225,15 @@ ferry-wait/
 │
 ├── .github/
 │   └── workflows/
+│       ├── ci.yml               # fase 0.7
 │       └── crawler.yml
-│
-├── crawler/
-│   ├── collectors/
-│   ├── parsers/
-│   │   └── fixtures/
-│   ├── jobs/
-│   └── tests/
-│
-├── api/                         # fase futura
-│   ├── routes/
-│   ├── services/
-│   ├── schemas/
-│   ├── repositories/
-│   └── tests/
-│
-├── ml/                          # fase futura
-│   ├── notebooks/
-│   ├── experiments/
-│   ├── training/
-│   └── evaluation/
-│
-├── shared/
-│   ├── database/
-│   ├── models/
-│   └── utils/
-│
-├── scripts/
 │
 ├── docker/
 │   └── docker-compose.yml
 │
-├── .cursor/
-│   └── rules/
-│
+├── pyproject.toml
+├── uv.lock
+├── Makefile
 └── README.md
 ```
 

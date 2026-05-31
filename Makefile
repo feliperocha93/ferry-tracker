@@ -10,7 +10,7 @@ endif
 COMPOSE_FILE := docker/docker-compose.yml
 # Avoid Docker Desktop credsStore when only Engine + compose-plugin are installed
 export DOCKER_CONFIG := $(CURDIR)/docker/.docker
-ALEMBIC_INI := shared/database/alembic.ini
+ALEMBIC_INI := src/core/database/alembic.ini
 MIGRATE_MSG ?= schema change
 
 .PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl

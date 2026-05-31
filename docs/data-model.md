@@ -80,8 +80,17 @@ Usadas em analytics (Fase 1) e modelos (Fases 2–4). Ver [ml-notes.md](./ml-not
 
 ---
 
+## Implementação
+
+* Model SQLAlchemy: `src/core/models/wait_time_observation.py`
+* Constantes de rota: `src/core/models/ferry_routes.py`
+* Migrações Alembic: `src/core/database/`
+
+---
+
 ## Documentação relacionada
 
 * [Arquitetura — Crawler](./architecture.md#crawler)
+* [Arquitetura — Organização do código](./architecture.md#organização-do-código-src)
 * [Roadmap](./roadmap.md)
 * [API (futuro)](./api.md)

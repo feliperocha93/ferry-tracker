@@ -17,6 +17,22 @@ Não utilizar redes neurais inicialmente.
 
 ---
 
+## Onde vive o código ML
+
+Exploração e experimentos ficam em **`ml/`** na raiz do repositório (fora de `src/`), pois não são código de produção no MVP:
+
+```text
+ml/
+├── notebooks/      # análises ad hoc
+├── experiments/    # runs locais
+├── training/       # scripts de treino (fase 4)
+└── evaluation/     # comparação de modelos
+```
+
+Scripts em `ml/` importam dados e tipos de `src/core/` e, se necessário, agregações futuras de `src/api/`.
+
+---
+
 ## Fase 2 — Validação de previsibilidade
 
 ### Pergunta central

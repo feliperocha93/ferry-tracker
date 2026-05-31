@@ -16,8 +16,8 @@ Sem Machine Learning — apenas agregações sobre `wait_time_observations`.
 
 ## Stack prevista
 
-* FastAPI
-* SQLAlchemy (reutilizando modelos em `shared/`)
+* FastAPI (`src/api/`)
+* SQLAlchemy (reutilizando modelos em `src/core/models/`)
 * Hospedagem: Render ou Railway (free tier)
 
 ---
