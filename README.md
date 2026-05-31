@@ -1,0 +1,87 @@
+# ferry-wait
+
+Coleta e previsão de tempo de espera em travessias de balsa do [SEMIL/DERSA](https://semil.sp.gov.br/travessias/travessias-automoveis/sao-sebastiao-ilhabela/) (São Paulo).
+
+Documentação completa em [`docs/`](docs/).
+
+## Pré-requisitos
+
+- [uv](https://docs.astral.sh/uv/) (gerenciamento de dependências)
+- [Docker](https://www.docker.com/) (PostgreSQL local)
+- Python 3.12+
+
+Instalar uv:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# ou: pip install uv
+```
+
+Docker (Engine + Compose plugin, sem Docker Desktop):
+
+```bash
+sudo apt-get update
+sudo apt-get install docker.io docker-compose-plugin
+sudo usermod -aG docker $USER   # depois, sair e entrar na sessão
+```
+
+`make db-up` usa `docker/.docker/config.json` para não depender do credential helper do Docker Desktop. Se `docker pull` falhar fora do Makefile com `docker-credential-desktop: not found`, remova `"credsStore": "desktop"` de `~/.docker/config.json` (comum após desinstalar o Desktop).
+
+## Setup local
+
+```bash
+# 1. Instalar dependências
+make install
+
+# 2. Configurar variáveis de ambiente
+cp .env.example .env
+
+# 3. Subir PostgreSQL local
+make db-up
+
+# 4. Verificar
+make test
+```
+
+## Comandos
+
+```bash
+make help          # lista todos os alvos
+make install       # uv sync
+make test          # pytest
+make db-up         # sobe Postgres (docker)
+make db-down       # para Postgres
+make migrate       # aplica migrações (fase 0.2+)
+make crawl-dry     # coleta sem persistir (fase 0.4+)
+make crawl         # coleta + persistência (fase 0.5+)
+```
+
+## Variáveis de ambiente
+
+| Variável | Descrição |
+|----------|-----------|
+| `DATABASE_URL` | Connection string PostgreSQL |
+| `SENDGRID_API_KEY` | API key SendGrid (alertas, fase 0.8) |
+| `ALERT_EMAIL_FROM` | Remetente dos alertas |
+| `ALERT_EMAIL_PARSE` | Destino: falhas de parse |
+| `ALERT_EMAIL_FRESHNESS` | Destino: DB sem update |
+
+Ver [`.env.example`](.env.example).
+
+## Estrutura
+
+```text
+ferry-wait/
+├── crawler/       # coleta e parse HTML
+├── shared/        # models, database, utils
+├── docker/        # Docker Compose (Postgres local)
+├── docs/          # documentação do projeto
+├── scripts/       # utilitários
+└── terraform/     # infra prod (fase 0.6+)
+```
+
+## Fase atual
+
+**0.1 — Fundação:** ambiente local, uv, Makefile, Docker Compose.
+
+Próximo: [Fase 0.2](docs/roadmap.md) — modelo de dados e migrações Alembic.

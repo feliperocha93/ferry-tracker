@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ferry-wait-postgres
+    environment:
+      POSTGRES_USER: ferry
+      POSTGRES_PASSWORD: ferry
+      POSTGRES_DB: ferry_wait
+    ports:
+      - "5432:5432"
+    volumes:
+      - ferry_wait_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ferry -d ferry_wait"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ferry_wait_pgdata:
