@@ -15,7 +15,10 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["src/core/tests", "src/crawler/tests"]
 pythonpath = ["src"]
-addopts = "-q"
+addopts = "-q -m 'not integration'"
+markers = [
+    "integration: hits the live SEMIL site (deselect with -m 'not integration')",
+]
 
 [dependency-groups]
 dev = [

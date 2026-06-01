@@ -44,8 +44,11 @@ migrate: ## Apply database migrations
 migrate-new: ## Create a new migration (usage: make migrate-new MIGRATE_MSG="description")
 	$(UV) run $(UV_ENV_FILE) alembic -c $(ALEMBIC_INI) revision --autogenerate -m "$(MIGRATE_MSG)"
 
-crawl-dry: ## Run crawler without persisting
-	$(UV) run python -m crawler.jobs.run --dry-run
+crawl-dry: ## Run crawler without persisting (live site)
+	$(UV) run $(UV_ENV_FILE) python -m crawler.jobs.run
+
+crawl-dry-fixture: ## Run crawler against fixtures/semil_sample.html
+	$(UV) run python -m crawler.jobs.run --html-file src/crawler/parsers/fixtures/semil_sample.html
 
 crawl: ## Run crawler and persist observations
 	$(UV) run python -m crawler.jobs.run --save

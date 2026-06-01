@@ -55,7 +55,7 @@ make test          # pytest
 make db-up         # sobe Postgres (docker)
 make db-down       # para Postgres
 make migrate       # aplica migrações (requer .env e Postgres)
-make crawl-dry     # coleta sem persistir (fase 0.4+)
+make crawl-dry     # coleta sem persistir (JSON no stdout)
 make crawl         # coleta + persistência (fase 0.5+)
 ```
 
@@ -90,6 +90,6 @@ Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Fase atual
 
-**0.2 — Modelo de dados:** tabela `wait_time_observations`, Alembic em `src/core/database/`.
+**0.3 — Parser HTML:** fetch + parse do widget SEMIL (`src/crawler/`).
 
-Próximo: [Fase 0.3](docs/roadmap.md) — parser HTML SEMIL.
+Próximo: [Fase 0.4](docs/roadmap.md) — job de coleta com slots e `scrape_status`.
