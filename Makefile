@@ -12,6 +12,8 @@ COMPOSE_FILE := docker/docker-compose.yml
 export DOCKER_CONFIG := $(CURDIR)/docker/.docker
 ALEMBIC_INI := src/core/database/alembic.ini
 MIGRATE_MSG ?= schema change
+# Load .env for local migrate when present (uv --env-file)
+UV_ENV_FILE := $(if $(wildcard .env),--env-file .env,)
 
 .PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl
 
@@ -37,10 +39,10 @@ db-logs: ## Tail PostgreSQL logs
 	docker compose -f $(COMPOSE_FILE) logs -f postgres
 
 migrate: ## Apply database migrations
-	$(UV) run alembic -c $(ALEMBIC_INI) upgrade head
+	$(UV) run $(UV_ENV_FILE) alembic -c $(ALEMBIC_INI) upgrade head
 
 migrate-new: ## Create a new migration (usage: make migrate-new MIGRATE_MSG="description")
-	$(UV) run alembic -c $(ALEMBIC_INI) revision --autogenerate -m "$(MIGRATE_MSG)"
+	$(UV) run $(UV_ENV_FILE) alembic -c $(ALEMBIC_INI) revision --autogenerate -m "$(MIGRATE_MSG)"
 
 crawl-dry: ## Run crawler without persisting
 	$(UV) run python -m crawler.jobs.run --dry-run

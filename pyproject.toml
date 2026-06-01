@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["src/crawler/tests"]
+testpaths = ["src/core/tests", "src/crawler/tests"]
 pythonpath = ["src"]
 addopts = "-q"
 

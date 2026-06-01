@@ -39,7 +39,10 @@ cp .env.example .env
 # 3. Subir PostgreSQL local
 make db-up
 
-# 4. Verificar
+# 4. Aplicar migrações (cria wait_time_observations)
+make migrate
+
+# 5. Verificar
 make test
 ```
 
@@ -51,7 +54,7 @@ make install       # uv sync
 make test          # pytest
 make db-up         # sobe Postgres (docker)
 make db-down       # para Postgres
-make migrate       # aplica migrações (fase 0.2+)
+make migrate       # aplica migrações (requer .env e Postgres)
 make crawl-dry     # coleta sem persistir (fase 0.4+)
 make crawl         # coleta + persistência (fase 0.5+)
 ```
@@ -87,6 +90,6 @@ Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Fase atual
 
-**0.1 — Fundação:** ambiente local, uv, Makefile, Docker Compose.
+**0.2 — Modelo de dados:** tabela `wait_time_observations`, Alembic em `src/core/database/`.
 
-Próximo: [Fase 0.2](docs/roadmap.md) — modelo de dados e migrações Alembic.
+Próximo: [Fase 0.3](docs/roadmap.md) — parser HTML SEMIL.
