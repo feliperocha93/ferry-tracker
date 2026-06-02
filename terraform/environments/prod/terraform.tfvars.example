@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars (gitignored) and fill in your Neon org ID.
+# API key: export NEON_API_KEY=... (do not commit).
+
+neon_org_id = "org-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# Optional overrides (defaults match local docker-compose naming):
+# project_name  = "ferry-wait"
+# region_id     = "aws-sa-east-1"
+# pg_version    = 16
+# database_name = "ferry_wait"
+# role_name     = "ferry"

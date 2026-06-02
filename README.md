@@ -8,6 +8,7 @@ Documentação completa em [`docs/`](docs/).
 
 - [uv](https://docs.astral.sh/uv/) (gerenciamento de dependências)
 - [Docker](https://www.docker.com/) (PostgreSQL local)
+- [Terraform](https://developer.hashicorp.com/terraform/install) ≥ 1.5 (Neon prod, fase 0.6)
 - Python 3.12+
 
 Instalar uv:
@@ -89,8 +90,22 @@ ferry-wait/
 
 Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
+## Infra prod (Neon)
+
+Ver [`terraform/README.md`](terraform/README.md).
+
+Validação local de mudanças Terraform:
+
+```bash
+export NEON_API_KEY="napi_..."
+# terraform.tfvars em terraform/environments/prod/
+make tf-init && make tf-plan
+```
+
+Apply em produção e migrações automáticas: [fase 0.7](docs/roadmap.md) (GitHub Actions).
+
 ## Fase atual
 
-**0.5 — Persistência local:** `save_observations` com idempotência (`ON CONFLICT DO NOTHING`).
+**0.6 concluída** — Neon provisionado, migração inicial aplicada.
 
-Próximo: [Fase 0.6](docs/roadmap.md) — Terraform + Neon (prod).
+Próximo: [Fase 0.7](docs/roadmap.md) — GitHub Actions (crawler, CI, `terraform plan` em PR, apply/migrate na `main`).

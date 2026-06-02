@@ -7,6 +7,12 @@ else
   UV := .tools/bin/uv
 endif
 
+ifeq ($(wildcard .tools/bin/terraform),)
+  TF := terraform
+else
+  TF := .tools/bin/terraform
+endif
+
 COMPOSE_FILE := docker/docker-compose.yml
 # Avoid Docker Desktop credsStore when only Engine + compose-plugin are installed
 export DOCKER_CONFIG := $(CURDIR)/docker/.docker
@@ -15,7 +21,9 @@ MIGRATE_MSG ?= schema change
 # Load .env for local migrate when present (uv --env-file)
 UV_ENV_FILE := $(if $(wildcard .env),--env-file .env,)
 
-.PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl-dry-fixture crawl crawl-fixture
+TF_DIR := terraform/environments/prod
+
+.PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl-dry-fixture crawl crawl-fixture tf-init tf-plan
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -55,3 +63,9 @@ crawl: ## Run crawler and persist observations
 
 crawl-fixture: ## Persist observations from fixtures/semil_sample.html
 	$(UV) run $(UV_ENV_FILE) python -m crawler.jobs.run --save --html-file src/crawler/parsers/fixtures/semil_sample.html
+
+tf-init: ## Terraform init (required before tf-plan; also run in CI)
+	$(TF) -chdir=$(TF_DIR) init
+
+tf-plan: ## Terraform plan — validate infra diff locally (NEON_API_KEY + terraform.tfvars)
+	$(TF) -chdir=$(TF_DIR) plan
