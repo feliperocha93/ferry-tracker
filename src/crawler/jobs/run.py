@@ -6,9 +6,10 @@ import argparse
 import json
 import sys
 from dataclasses import asdict
+from datetime import datetime
 
 from crawler.collectors.fetcher import FetchError, fetch_semil_page
-from crawler.parsers.semil_parser import parse_semil_html
+from crawler.jobs.crawl_job import run_crawl
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -21,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Fetch and print parsed routes as JSON (default)",
+        help="Fetch and print observation records as JSON (default)",
     )
     parser.add_argument(
         "--html-file",
@@ -35,7 +36,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        html = _load_html(args.html_file)
+        if args.html_file:
+            html = open(args.html_file, encoding="utf-8").read()
+            result = run_crawl(html=html)
+        else:
+            result = run_crawl(fetch_html=fetch_semil_page)
     except FetchError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -43,22 +48,36 @@ def main(argv: list[str] | None = None) -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    result = parse_semil_html(html)
     payload = {
+        "collected_at": _iso(result.observations[0].collected_at),
         "global_alert": result.global_alert,
-        "routes": [asdict(route) for route in result.routes],
+        "fetch_failed": result.fetch_failed,
+        "observations": [_observation_dict(obs) for obs in result.observations],
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
-    if any(not route.parse_ok for route in result.routes):
+    if result.fetch_failed:
+        return 1
+    if any(obs.scrape_status != "success" for obs in result.observations):
         return 1
     return 0
 
 
-def _load_html(html_file: str | None) -> str:
-    if html_file:
-        return open(html_file, encoding="utf-8").read()
-    return fetch_semil_page()
+def _observation_dict(obs: object) -> dict[str, object]:
+    data = asdict(obs)
+    collected_at = data.pop("collected_at")
+    data["collected_at"] = _iso(collected_at)
+    raw = data.get("raw_payload")
+    if isinstance(raw, dict) and "html" in raw:
+        data["raw_payload"] = {
+            **raw,
+            "html": f"<{len(raw['html'])} chars>",
+        }
+    return data
+
+
+def _iso(dt: datetime) -> str:
+    return dt.isoformat()
 
 
 if __name__ == "__main__":

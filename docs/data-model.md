@@ -11,7 +11,7 @@
 | `number_of_ships` | smallint | não | Embarcações em operação |
 | `weather_alert` | text | não | Alerta meteorológico/operacional exibido no site |
 | `scrape_status` | text | sim | `success`, `parse_error`, `site_down` |
-| `raw_payload` | jsonb | não | Resposta bruta para debug e re-parse |
+| `raw_payload` | jsonb | não | HTML bruto para debug/re-parse — **somente em `parse_error`**, **uma linha por job** |
 | `created_at` | timestamptz | sim | Default `now()` |
 
 \* Obrigatório quando `scrape_status = success`.
@@ -55,7 +55,7 @@ vicente_de_carvalho_to_santos
 
 * Não armazenar apenas agregações — sempre preservar o dado bruto coletado.
 * Timestamps sempre em UTC no banco; conversão para `America/Sao_Paulo` apenas na camada de apresentação.
-* Preservar `raw_payload` em toda coleta bem-sucedida.
+* `raw_payload` preenchido apenas quando `scrape_status = parse_error` (fetch OK, parse falhou), na **primeira** rota com erro (ordem `FERRY_ROUTE_IDS`). Coletas `success` e `site_down` usam `null`.
 * Regras de validação de `wait_minutes` (range, outliers) — **definir na Fase 1**.
 
 ---

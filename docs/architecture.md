@@ -95,7 +95,7 @@ Código de aplicação vive em **`src/`**. Infra, docs e código exploratório f
 | `wait_minutes` | "Tempo de Espera: X minutos" |
 | `number_of_ships` | Contagem de embarcações em operação (ex.: `3` no header da rota) |
 | `weather_alert` | Alertas exibidos no site (ex.: maré baixa, instabilidade do sistema) |
-| `raw_payload` | Resposta HTML para reprocessamento |
+| `raw_payload` | HTML para re-parse — só em `parse_error`, uma linha por job |
 
 Identificadores de rota: ver [data-model.md](./data-model.md).
 
@@ -166,11 +166,11 @@ jobs:
 ### Idempotência
 
 * Constraint única: `(ferry_route_id, collected_at)` — slot em `America/Sao_Paulo`, armazenado em UTC
-* `raw_payload`: resposta HTML completa por job (replicada nas 8 linhas ou apenas na primeira — definir na implementação)
+* `raw_payload`: HTML completo apenas na **primeira** linha com `parse_error` do job; `success` e `site_down` ficam com `null`
 
 ### Riscos conhecidos
 
-* **Instabilidade do site:** avisos de sistema instável — registrar em `weather_alert` / `raw_payload`; não tratar como parse error se a página carregar
+* **Instabilidade do site:** aviso global em `global_alert` do job; persistido em `raw_payload` apenas se houver `parse_error`
 * **Limites GitHub Actions:** ~720 min/mês necessários (48 runs/dia × ~30s) — folga confortável no free tier
 * **Mudança de layout HTML:** `raw_payload` permite re-parse; testes com fixtures HTML salvas
 

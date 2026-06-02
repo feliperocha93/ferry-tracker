@@ -90,6 +90,6 @@ Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Fase atual
 
-**0.3 — Parser HTML:** fetch + parse do widget SEMIL (`src/crawler/`).
+**0.4 — Job de coleta:** slots SP, `scrape_status`, 8 registros por execução (`src/crawler/jobs/`).
 
-Próximo: [Fase 0.4](docs/roadmap.md) — job de coleta com slots e `scrape_status`.
+Próximo: [Fase 0.5](docs/roadmap.md) — persistência local com idempotência.
