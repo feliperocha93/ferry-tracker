@@ -1,0 +1,30 @@
+name: Migrate
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "src/core/database/alembic/versions/**"
+      - ".github/workflows/migrate.yml"
+
+concurrency:
+  group: migrate-prod
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Apply migrations (prod)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run alembic -c src/core/database/alembic.ini upgrade head

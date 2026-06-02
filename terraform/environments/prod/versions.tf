@@ -8,9 +8,12 @@ terraform {
     }
   }
 
-  # Local state for solo MVP. For team use, switch to remote backend (S3, Terraform Cloud, etc.).
-  backend "local" {
-    path = "terraform.tfstate"
+  # Remote state via Terraform Cloud (workspace: ferry-wait-prod).
+  # Set TF_CLOUD_ORGANIZATION locally and in GitHub repo variables.
+  cloud {
+    workspaces {
+      name = "ferry-wait-prod"
+    }
   }
 }
 

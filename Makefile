@@ -67,5 +67,5 @@ crawl-fixture: ## Persist observations from fixtures/semil_sample.html
 tf-init: ## Terraform init (required before tf-plan; also run in CI)
 	$(TF) -chdir=$(TF_DIR) init
 
-tf-plan: ## Terraform plan — validate infra diff locally (NEON_API_KEY + terraform.tfvars)
+tf-plan: ## Terraform plan (NEON_API_KEY, terraform.tfvars; TFC: TF_API_TOKEN + TF_CLOUD_ORGANIZATION)
 	$(TF) -chdir=$(TF_DIR) plan

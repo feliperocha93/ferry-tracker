@@ -225,8 +225,10 @@ ferry-wait/
 │
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml               # fase 0.7
-│       └── crawler.yml
+│       ├── ci.yml
+│       ├── crawler.yml
+│       ├── terraform.yml
+│       └── migrate.yml
 │
 ├── docker/
 │   └── docker-compose.yml

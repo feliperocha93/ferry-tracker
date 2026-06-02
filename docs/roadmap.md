@@ -25,10 +25,10 @@ Fase 4   →  Machine Learning (se justificado)
 - [ ] Modelo `wait_time_observations` + migração Alembic — `src/core/`
 - [ ] Job de coleta com retry e `scrape_status` — `src/crawler/jobs/`
 - [x] Persistência local (`save_observations`) — `src/core/database/repository.py`
-- [ ] GitHub Actions: crawler (cron :00/:30) + CI (`pytest`)
-- [ ] GHA `terraform plan` em PRs com mudanças em `terraform/`
-- [ ] GHA `terraform apply` no merge na `main` (infra prod)
-- [ ] GHA `alembic upgrade head` no merge na `main` quando `alembic/versions/` mudar
+- [x] GitHub Actions: crawler (cron :00/:30) + CI (`pytest`) — [`docs/github-actions.md`](./github-actions.md)
+- [x] GHA `terraform plan` em PRs com mudanças em `terraform/`
+- [x] GHA `terraform apply` no merge em `master` (infra prod)
+- [x] GHA `alembic upgrade head` no merge em `master` quando `alembic/versions/` mudar
 - [x] Neon PostgreSQL provisionado (Terraform prod) — ver [`terraform/README.md`](../terraform/README.md)
 - [ ] Docker Compose para dev local
 - [ ] Testes de parser com fixtures HTML — `src/crawler/tests/`

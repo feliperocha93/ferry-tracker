@@ -65,7 +65,7 @@ make crawl-fixture # persiste fixture offline (teste local)
 
 | Variável | Descrição |
 |----------|-----------|
-| `DATABASE_URL` | Connection string PostgreSQL |
+| `DATABASE_URL` | Connection string PostgreSQL (`postgresql+psycopg://` em prod) |
 | `SENDGRID_API_KEY` | API key SendGrid (alertas, fase 0.8) |
 | `ALERT_EMAIL_FROM` | Remetente dos alertas |
 | `ALERT_EMAIL_PARSE` | Destino: falhas de parse |
@@ -85,27 +85,41 @@ ferry-wait/
 ├── scripts/       # utilitários operacionais
 ├── docker/        # Docker Compose (Postgres local)
 ├── docs/          # documentação do projeto
-└── terraform/     # infra prod (fase 0.6+)
+├── terraform/     # infra prod (Neon)
+└── .github/       # CI, crawler, terraform, migrate
 ```
 
 Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
+## GitHub Actions
+
+Configuração de secrets e validação: [`docs/github-actions.md`](docs/github-actions.md).
+
+| Workflow | Função |
+|----------|--------|
+| `ci.yml` | Testes em todo PR/push |
+| `crawler.yml` | Coleta a cada 30 min (SP) + manual |
+| `terraform.yml` | `plan` em PR; `apply` no merge em `master` |
+| `migrate.yml` | Alembic em prod quando `alembic/versions/` muda |
+
+**Secrets:** `DATABASE_URL`, `NEON_API_KEY`, `TF_API_TOKEN`  
+**Variables:** `TF_CLOUD_ORGANIZATION`, `NEON_ORG_ID`
+
+Migrar state Terraform para o Cloud **antes** do primeiro apply na CI — ver [`terraform/README.md`](terraform/README.md).
+
 ## Infra prod (Neon)
 
-Ver [`terraform/README.md`](terraform/README.md).
-
-Validação local de mudanças Terraform:
+Ver [`terraform/README.md`](terraform/README.md). Validação local:
 
 ```bash
 export NEON_API_KEY="napi_..."
-# terraform.tfvars em terraform/environments/prod/
+export TF_CLOUD_ORGANIZATION="sua-org"
+export TF_API_TOKEN="seu-token"
 make tf-init && make tf-plan
 ```
 
-Apply em produção e migrações automáticas: [fase 0.7](docs/roadmap.md) (GitHub Actions).
-
 ## Fase atual
 
-**0.6 concluída** — Neon provisionado, migração inicial aplicada.
+**0.7 — Automação:** GitHub Actions (crawler, CI, Terraform, migrate).
 
-Próximo: [Fase 0.7](docs/roadmap.md) — GitHub Actions (crawler, CI, `terraform plan` em PR, apply/migrate na `main`).
+Próximo: [Fase 0.8](docs/roadmap.md) — alertas SendGrid.
