@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import sys
 from dataclasses import asdict
 from datetime import datetime
@@ -11,6 +12,8 @@ from datetime import datetime
 from core.database.repository import save_observations
 from crawler.collectors.fetcher import FetchError, fetch_semil_page
 from crawler.jobs.crawl_job import CrawlJobResult, run_crawl
+
+logger = logging.getLogger(__name__)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -32,16 +35,24 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
+    _configure_logging()
+    logger.info(
+        "Crawl job started (save=%s, dry_run=%s, html_file=%s)",
+        args.save,
+        args.dry_run,
+        args.html_file,
+    )
+
     try:
         result = _execute_crawl(args.html_file)
-    except FetchError as exc:
-        print(str(exc), file=sys.stderr)
+    except FetchError:
+        logger.exception("Fetch failed")
         return 1
-    except OSError as exc:
-        print(str(exc), file=sys.stderr)
+    except OSError:
+        logger.exception("I/O error")
         return 1
-    except RuntimeError as exc:
-        print(str(exc), file=sys.stderr)
+    except RuntimeError:
+        logger.exception("Runtime error")
         return 1
 
     save_result = None
@@ -49,7 +60,17 @@ def main(argv: list[str] | None = None) -> int:
         save_result = save_observations(result.observations)
 
     print(json.dumps(_payload(result, save_result), ensure_ascii=False, indent=2))
-    return _exit_code(result)
+    exit_code = _exit_code(result)
+    logger.info("Crawl job finished with exit code %d", exit_code)
+    return exit_code
+
+
+def _configure_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        stream=sys.stderr,
+    )
 
 
 def _execute_crawl(html_file: str | None) -> CrawlJobResult:

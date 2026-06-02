@@ -2,7 +2,7 @@ name: Crawler
 
 on:
   schedule:
-    - cron: "0,30 * * * *"
+    - cron: "13,43 * * * *"
       timezone: America/Sao_Paulo
   workflow_dispatch:
 

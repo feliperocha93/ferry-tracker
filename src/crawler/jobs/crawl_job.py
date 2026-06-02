@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
@@ -14,6 +15,8 @@ from crawler.collectors.fetcher import FetchError, fetch_semil_page
 from crawler.jobs.types import ObservationRecord
 from crawler.parsers.semil_parser import parse_semil_html
 from crawler.parsers.types import ParsedRoute, ParseResult
+
+logger = logging.getLogger(__name__)
 
 FetchFn = Callable[[], str]
 
@@ -34,19 +37,23 @@ def run_crawl(
     """Run one collection cycle and return 8 observation records."""
     slot = collected_at or current_collection_slot()
     fetch = fetch_html or fetch_semil_page
+    logger.info("Starting crawl for slot %s", slot.isoformat())
 
     if html is not None:
+        logger.info("Using provided HTML (%d chars)", len(html))
         return _build_from_html(html, slot)
 
     try:
         fetched = fetch()
     except FetchError:
+        logger.error("SEMIL fetch failed; recording site_down for all routes")
         return CrawlJobResult(
             observations=_site_down_records(slot),
             global_alert=None,
             fetch_failed=True,
         )
 
+    logger.info("Parsing SEMIL HTML (%d chars)", len(fetched))
     return _build_from_html(fetched, slot)
 
 
@@ -69,11 +76,19 @@ def _build_from_html(html: str, slot: datetime) -> CrawlJobResult:
         raw_assigned = raw_assigned or payload is not None
         observations.append(_observation_from_route(route, slot, raw_payload=payload))
 
-    return CrawlJobResult(
+    result = CrawlJobResult(
         observations=observations,
         global_alert=parsed.global_alert,
         fetch_failed=False,
     )
+    ok = sum(1 for obs in observations if obs.scrape_status == ScrapeStatus.SUCCESS)
+    logger.info(
+        "Crawl complete: %d/%d routes ok, global_alert=%s",
+        ok,
+        len(observations),
+        "yes" if parsed.global_alert else "no",
+    )
+    return result
 
 
 def _observation_from_route(

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from sqlalchemy.dialects.postgresql import insert
@@ -10,6 +11,8 @@ from sqlalchemy.orm import Session
 from core.database.session import get_session
 from core.models.wait_time_observation import WaitTimeObservation
 from crawler.jobs.types import ObservationRecord
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -25,8 +28,10 @@ def save_observations(
 ) -> SaveResult:
     """Insert observations; skip rows that violate the unique constraint."""
     if not records:
+        logger.info("No observations to save")
         return SaveResult(inserted=0, skipped=0)
 
+    logger.info("Saving %d observation(s) to database", len(records))
     own_session = session is None
     db = session or get_session()
     try:
@@ -39,8 +44,15 @@ def save_observations(
         inserted = len(inserted_rows)
         if own_session:
             db.commit()
-        return SaveResult(inserted=inserted, skipped=len(records) - inserted)
+        result = SaveResult(inserted=inserted, skipped=len(records) - inserted)
+        logger.info(
+            "Save complete: inserted=%d skipped=%d",
+            result.inserted,
+            result.skipped,
+        )
+        return result
     except Exception:
+        logger.exception("Failed to save observations")
         if own_session:
             db.rollback()
         raise

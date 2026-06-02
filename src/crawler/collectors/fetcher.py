@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import time
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 SEMIL_COLLECTION_URL = (
     "https://semil.sp.gov.br/travessias/travessias-automoveis/sao-sebastiao-ilhabela/"
@@ -53,13 +56,34 @@ def _fetch_with_client(
 ) -> str:
     last_error: Exception | None = None
     for attempt in range(2):
+        attempt_num = attempt + 1
+        logger.info("Fetching %s (attempt %d/2)", url, attempt_num)
+        started = time.monotonic()
         try:
             response = client.get(url, headers=headers)
             response.raise_for_status()
+            elapsed = time.monotonic() - started
+            logger.info(
+                "Fetched %s: HTTP %d, %d bytes in %.1fs",
+                url,
+                response.status_code,
+                len(response.text),
+                elapsed,
+            )
             return response.text
         except (httpx.HTTPError, httpx.TimeoutException) as exc:
+            elapsed = time.monotonic() - started
             last_error = exc
+            logger.warning(
+                "Fetch attempt %d/2 failed for %s after %.1fs: %s",
+                attempt_num,
+                url,
+                elapsed,
+                exc,
+            )
             if attempt == 0:
+                logger.info("Retrying in %.0fs", retry_backoff)
                 time.sleep(retry_backoff)
     msg = f"Failed to fetch {url}"
+    logger.error("%s after 2 attempts", msg)
     raise FetchError(msg) from last_error
