@@ -56,7 +56,8 @@ make db-up         # sobe Postgres (docker)
 make db-down       # para Postgres
 make migrate       # aplica migrações (requer .env e Postgres)
 make crawl-dry     # coleta sem persistir (JSON no stdout)
-make crawl         # coleta + persistência (fase 0.5+)
+make crawl         # coleta + persistência (requer .env e Postgres)
+make crawl-fixture # persiste fixture offline (teste local)
 ```
 
 ## Variáveis de ambiente
@@ -90,6 +91,6 @@ Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Fase atual
 
-**0.4 — Job de coleta:** slots SP, `scrape_status`, 8 registros por execução (`src/crawler/jobs/`).
+**0.5 — Persistência local:** `save_observations` com idempotência (`ON CONFLICT DO NOTHING`).
 
-Próximo: [Fase 0.5](docs/roadmap.md) — persistência local com idempotência.
+Próximo: [Fase 0.6](docs/roadmap.md) — Terraform + Neon (prod).

@@ -8,8 +8,9 @@ import sys
 from dataclasses import asdict
 from datetime import datetime
 
+from core.database.repository import save_observations
 from crawler.collectors.fetcher import FetchError, fetch_semil_page
-from crawler.jobs.crawl_job import run_crawl
+from crawler.jobs.crawl_job import CrawlJobResult, run_crawl
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -17,12 +18,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--save",
         action="store_true",
-        help="Fetch and persist observations to the database (phase 0.5)",
+        help="Fetch and persist observations to the database",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Fetch and print observation records as JSON (default)",
+        help="Fetch and print observation records as JSON (default without --save)",
     )
     parser.add_argument(
         "--html-file",
@@ -31,31 +32,46 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
-    if args.save:
-        print("Persist not yet implemented (phase 0.5).", file=sys.stderr)
-        return 1
-
     try:
-        if args.html_file:
-            html = open(args.html_file, encoding="utf-8").read()
-            result = run_crawl(html=html)
-        else:
-            result = run_crawl(fetch_html=fetch_semil_page)
+        result = _execute_crawl(args.html_file)
     except FetchError as exc:
         print(str(exc), file=sys.stderr)
         return 1
     except OSError as exc:
         print(str(exc), file=sys.stderr)
         return 1
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
-    payload = {
+    save_result = None
+    if args.save:
+        save_result = save_observations(result.observations)
+
+    print(json.dumps(_payload(result, save_result), ensure_ascii=False, indent=2))
+    return _exit_code(result)
+
+
+def _execute_crawl(html_file: str | None) -> CrawlJobResult:
+    if html_file:
+        html = open(html_file, encoding="utf-8").read()
+        return run_crawl(html=html)
+    return run_crawl(fetch_html=fetch_semil_page)
+
+
+def _payload(result: CrawlJobResult, save_result: object | None) -> dict[str, object]:
+    data: dict[str, object] = {
         "collected_at": _iso(result.observations[0].collected_at),
         "global_alert": result.global_alert,
         "fetch_failed": result.fetch_failed,
         "observations": [_observation_dict(obs) for obs in result.observations],
     }
-    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    if save_result is not None:
+        data["save"] = asdict(save_result)
+    return data
 
+
+def _exit_code(result: CrawlJobResult) -> int:
     if result.fetch_failed:
         return 1
     if any(obs.scrape_status != "success" for obs in result.observations):

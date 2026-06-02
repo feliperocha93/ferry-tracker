@@ -24,6 +24,7 @@ Fase 4   →  Machine Learning (se justificado)
 - [ ] Parser HTML para as 4 rotas (8 sentidos) — `src/crawler/parsers/`
 - [ ] Modelo `wait_time_observations` + migração Alembic — `src/core/`
 - [ ] Job de coleta com retry e `scrape_status` — `src/crawler/jobs/`
+- [x] Persistência local (`save_observations`) — `src/core/database/repository.py`
 - [ ] GitHub Actions workflow (cron :00/:30) + CI de testes
 - [ ] Neon PostgreSQL provisionado (Terraform prod)
 - [ ] Docker Compose para dev local

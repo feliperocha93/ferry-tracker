@@ -15,9 +15,10 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["src/core/tests", "src/crawler/tests"]
 pythonpath = ["src"]
-addopts = "-q -m 'not integration'"
+addopts = "-q -m 'not integration and not integration_db'"
 markers = [
     "integration: hits the live SEMIL site (deselect with -m 'not integration')",
+    "integration_db: requires local PostgreSQL (deselect with -m 'not integration_db')",
 ]
 
 [dependency-groups]

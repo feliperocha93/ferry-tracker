@@ -15,7 +15,7 @@ MIGRATE_MSG ?= schema change
 # Load .env for local migrate when present (uv --env-file)
 UV_ENV_FILE := $(if $(wildcard .env),--env-file .env,)
 
-.PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl
+.PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl-dry-fixture crawl crawl-fixture
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -51,4 +51,7 @@ crawl-dry-fixture: ## Run crawler against fixtures/semil_sample.html
 	$(UV) run python -m crawler.jobs.run --html-file src/crawler/parsers/fixtures/semil_sample.html
 
 crawl: ## Run crawler and persist observations
-	$(UV) run python -m crawler.jobs.run --save
+	$(UV) run $(UV_ENV_FILE) python -m crawler.jobs.run --save
+
+crawl-fixture: ## Persist observations from fixtures/semil_sample.html
+	$(UV) run $(UV_ENV_FILE) python -m crawler.jobs.run --save --html-file src/crawler/parsers/fixtures/semil_sample.html
