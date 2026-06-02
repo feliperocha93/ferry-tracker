@@ -8,11 +8,11 @@ terraform {
     }
   }
 
-  # Remote state via Terraform Cloud (workspace: ferry-wait-prod).
+  # Remote state via Terraform Cloud (workspace: ferry-wait).
   # Set TF_CLOUD_ORGANIZATION locally and in GitHub repo variables.
   cloud {
     workspaces {
-      name = "ferry-wait-prod"
+      name = "ferry-wait"
     }
   }
 }

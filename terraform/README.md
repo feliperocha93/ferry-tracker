@@ -20,7 +20,7 @@ Detalhes dos workflows: [`docs/github-actions.md`](../docs/github-actions.md).
 
 1. [Neon account](https://console.neon.tech/) (free tier)
 2. [Terraform](https://developer.hashicorp.com/terraform/install) ≥ 1.5
-3. [Terraform Cloud](https://app.terraform.io/) — workspace `ferry-wait-prod`
+3. [Terraform Cloud](https://app.terraform.io/) — workspace `ferry-wait`
 4. Neon **API key** e **Organization ID**
 
 ## Layout
@@ -58,7 +58,7 @@ export NEON_API_KEY="napi_..."
 terraform init -migrate-state
 ```
 
-Criar workspace `ferry-wait-prod` na UI do TFC (ou deixar o init criar).
+Criar workspace `ferry-wait` na UI do TFC (ou deixar o init criar).
 
 ## Day-to-day (local)
 
@@ -83,7 +83,7 @@ Na CI, `NEON_ORG_ID` e `TF_CLOUD_ORGANIZATION` vêm das **repository variables**
 
 ## State and secrets
 
-- State remoto: Terraform Cloud workspace `ferry-wait-prod`
+- State remoto: Terraform Cloud workspace `ferry-wait`
 - `terraform.tfstate` local (bootstrap): pode remover **após** `init -migrate-state` bem-sucedido
 - Commit `.terraform.lock.hcl`
 - Never commit `terraform.tfvars`, API keys, or connection strings

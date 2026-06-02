@@ -33,7 +33,7 @@ SendGrid (`SENDGRID_*`, `ALERT_EMAIL_*`) — fase 0.8; opcional criar os secrets
 ## Terraform Cloud (antes do primeiro apply na CI)
 
 1. Criar conta em [app.terraform.io](https://app.terraform.io/)
-2. Criar workspace **`ferry-wait-prod`** (mesmo nome do `versions.tf`)
+2. Criar workspace **`ferry-wait`** (mesmo nome do `versions.tf`)
 3. Gerar **User API token** → secret `TF_API_TOKEN` no GitHub
 4. Definir variable `TF_CLOUD_ORGANIZATION` no GitHub
 
