@@ -28,7 +28,6 @@ Repositório → **Settings** → **Secrets and variables** → **Actions**.
 | `TF_CLOUD_ORGANIZATION` | `terraform` | Nome da org no [Terraform Cloud](https://app.terraform.io/) |
 | `NEON_ORG_ID` | `terraform` | Organization ID do Neon (mesmo valor de `neon_org_id` no `terraform.tfvars`) |
 
-SendGrid (`SENDGRID_*`, `ALERT_EMAIL_*`) — fase 0.8; opcional criar os secrets agora.
 
 ## Terraform Cloud (antes do primeiro apply na CI)
 

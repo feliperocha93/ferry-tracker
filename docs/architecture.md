@@ -124,8 +124,7 @@ Identificadores de rota: ver [data-model.md](./data-model.md).
 2. GET único na URL de coleta
 3. Parse HTML → extrair dados dos 8 sentidos + alertas globais
 4. INSERT de 8 linhas em wait_time_observations (uma por ferry_route_id)
-5. Se parse_error em qualquer rota → e-mail de alerta (parse)
-6. Ao final do job, verificar freshness global → e-mail se DB sem update
+5. Fim do job (sem alertas por e-mail no MVP)
 ```
 
 ### GitHub Actions
@@ -150,16 +149,18 @@ Detalhes do cron-job.org: [github-actions.md](./github-actions.md).
 | Secret | Uso |
 |--------|-----|
 | `DATABASE_URL` | Connection string Neon (prod) |
-| `ALERT_EMAIL_PARSE` | Destino para falhas de parse |
-| `ALERT_EMAIL_FRESHNESS` | Destino para DB sem update |
-| SMTP / SendGrid | Envio de e-mails |
 
-### Monitoramento e alertas (e-mail)
+### Monitoramento e alertas (fora do MVP)
 
-| Alerta | Condição | Destinatário |
-|--------|----------|--------------|
-| **Parse failure** | Qualquer rota com `scrape_status = parse_error` no job | `ALERT_EMAIL_PARSE` |
-| **DB stale** | Nenhuma linha com `scrape_status = success` nos últimos 45 min | `ALERT_EMAIL_FRESHNESS` |
+**SendGrid foi considerado e descartado por enquanto.** Avaliamos e-mail transacional (alerta stale: janela 06:00–06:15 SP, sem `success` nas últimas 12 h), mas o trial do SendGrid não atendeu (plano pago após 60 dias, projeto ainda cru). Preferimos validar coleta e dados antes de pagar provedor de e-mail.
+
+**Monitoramento no MVP:**
+
+* Logs do workflow GitHub Actions
+* Consultas manuais ao Neon (Beekeeper, SQL Editor)
+* `scripts/quality_report.py` (fase 0b) para gaps e taxa de `success`
+
+**Reavaliar depois:** SendGrid, Resend, Brevo ou Amazon SES quando a coleta estiver estável e alertas forem prioridade.
 
 ### Idempotência
 
@@ -183,7 +184,7 @@ ferry-wait/
 │   ├── core/                    # models, database, utils
 │   │   ├── database/            # session, alembic, repository
 │   │   ├── models/
-│   │   └── utils/               # time_slots, alerts
+│   │   └── utils/               # time_slots
 │   ├── crawler/
 │   │   ├── collectors/
 │   │   ├── parsers/

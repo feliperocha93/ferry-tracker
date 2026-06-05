@@ -21,18 +21,18 @@ Fase 4   →  Machine Learning (se justificado)
 
 **Entregáveis:**
 
-- [ ] Parser HTML para as 4 rotas (8 sentidos) — `src/crawler/parsers/`
-- [ ] Modelo `wait_time_observations` + migração Alembic — `src/core/`
-- [ ] Job de coleta com retry e `scrape_status` — `src/crawler/jobs/`
+- [x] Parser HTML para as 4 rotas (8 sentidos) — `src/crawler/parsers/`
+- [x] Modelo `wait_time_observations` + migração Alembic — `src/core/`
+- [x] Job de coleta com retry e `scrape_status` — `src/crawler/jobs/`
 - [x] Persistência local (`save_observations`) — `src/core/database/repository.py`
 - [x] GitHub Actions: crawler (cron-job.org 30 min + `workflow_dispatch`) + CI — [`docs/github-actions.md`](./github-actions.md)
 - [x] GHA `terraform plan` em PRs com mudanças em `terraform/`
 - [x] GHA `terraform apply` no merge em `master` (infra prod)
 - [x] GHA `alembic upgrade head` no merge em `master` quando `alembic/versions/` mudar
 - [x] Neon PostgreSQL provisionado (Terraform prod) — ver [`terraform/README.md`](../terraform/README.md)
-- [ ] Docker Compose para dev local
-- [ ] Testes de parser com fixtures HTML — `src/crawler/tests/`
-- [ ] Alertas por e-mail (parse error + DB stale) — `src/core/utils/`
+- [x] Docker Compose para dev local
+- [x] Testes de parser com fixtures HTML — `src/crawler/tests/`
+- [ ] Alertas por e-mail — **adiado** (SendGrid avaliado; fora do MVP enquanto coleta amadurece)
 
 **Duração estimada:** 1–2 semanas de implementação.
 
@@ -64,7 +64,7 @@ Detalhes técnicos: [architecture.md](./architecture.md)
 * ≥ 95% dos slots esperados coletados com `success` em 30 dias consecutivos
 * Zero duplicatas não explicadas
 * Spot-check manual: 10 amostras aleatórias batem com o site ao vivo
-* Alertas de e-mail funcionando para parse error e DB stale (testados manualmente)
+* Monitoramento manual ou `quality_report.py` confirma saúde da coleta (alertas e-mail adiados)
 
 ---
 

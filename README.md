@@ -66,12 +66,7 @@ make crawl-fixture # persiste fixture offline (teste local)
 | Variável | Descrição |
 |----------|-----------|
 | `DATABASE_URL` | Connection string PostgreSQL (`postgresql+psycopg://` em prod) |
-| `SENDGRID_API_KEY` | API key SendGrid (alertas, fase 0.8) |
-| `ALERT_EMAIL_FROM` | Remetente dos alertas |
-| `ALERT_EMAIL_PARSE` | Destino: falhas de parse |
-| `ALERT_EMAIL_FRESHNESS` | Destino: DB sem update |
 
-Ver [`.env.example`](.env.example).
 
 ## Estrutura
 
@@ -120,6 +115,6 @@ make tf-init && make tf-plan
 
 ## Fase atual
 
-**0.7 — Automação:** GitHub Actions (crawler, CI, Terraform, migrate).
+**0a concluída (MVP crawler)** — coleta em prod via cron-job.org + Neon.
 
-Próximo: [Fase 0.8](docs/roadmap.md) — alertas SendGrid.
+Próximo: [Fase 0b](docs/roadmap.md) — 30 dias de coleta + `quality_report.py`. Alertas e-mail adiados.
