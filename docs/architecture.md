@@ -3,7 +3,7 @@
 ## Visão geral (MVP)
 
 ```text
-GitHub Actions (cron, :00 e :30 America/Sao_Paulo)
+cron-job.org (30 min) → GitHub Actions workflow_dispatch
         ↓
 PostgreSQL (Neon)
         ↑
@@ -16,7 +16,7 @@ FastAPI (Render ou Railway — fase futura)
 | Banco | Neon (free tier) | $0 |
 | API | Render / Railway (fase futura) | $0 ou próximo |
 
-**Fallback do crawler:** se GitHub Actions free tier não for suficiente (limites de minutos, confiabilidade), avaliar Render Cron ou Railway.
+**Agendamento:** [cron-job.org](https://cron-job.org) dispara o workflow via API a cada 30 min (ver [github-actions.md](./github-actions.md)). O `schedule` nativo do GHA não é usado.
 
 **Desenvolvimento local:** Docker Compose com PostgreSQL local.
 
@@ -31,7 +31,7 @@ FastAPI (Render ou Railway — fase futura)
 | ORM | SQLAlchemy | Atual |
 | Migrações | Alembic | Atual |
 | Coleta | `httpx` + BeautifulSoup | Atual |
-| Agendamento | GitHub Actions (cron) | Atual |
+| Agendamento | cron-job.org → GHA `workflow_dispatch` | Atual |
 | Testes | Pytest | Atual |
 | Containerização | Docker Compose (local), Dockerfile | Atual |
 | IaC | Terraform (somente prod) | Atual |
@@ -101,8 +101,8 @@ Identificadores de rota: ver [data-model.md](./data-model.md).
 
 ### Agendamento
 
-* **Frequência:** a cada 30 minutos, alinhado a `:00` e `:30` no horário de São Paulo
-* **Cron (GitHub Actions):** `0,30 * * * *` com `timezone: America/Sao_Paulo`
+* **Frequência:** a cada 30 minutos (cron-job.org → `workflow_dispatch`)
+* **Slots no DB:** `:00` e `:30` em `America/Sao_Paulo` (calculados na execução, não pelo cron externo)
 * **Persistência:** `collected_at` truncado ao slot `:00` ou `:30` em `America/Sao_Paulo`, convertido para UTC antes do INSERT
 * **Política de falha:**
   1. Primeira tentativa falha → **1 retry** imediato (backoff curto, ex.: 30s)
@@ -120,7 +120,7 @@ Identificadores de rota: ver [data-model.md](./data-model.md).
 ### Fluxo de execução
 
 ```text
-1. GitHub Actions dispara no :00 ou :30 (America/Sao_Paulo)
+1. cron-job.org chama a API do GitHub → workflow Crawler inicia
 2. GET único na URL de coleta
 3. Parse HTML → extrair dados dos 8 sentidos + alertas globais
 4. INSERT de 8 linhas em wait_time_observations (uma por ferry_route_id)
@@ -134,18 +134,16 @@ Workflow: `.github/workflows/crawler.yml`
 
 ```yaml
 on:
-  schedule:
-    - cron: '0,30 * * * *'
-      timezone: America/Sao_Paulo
+  workflow_dispatch:   # agendado via cron-job.org (POST /actions/workflows/crawler.yml/dispatches)
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    env:
-      TZ: America/Sao_Paulo
     # steps: setup-uv → uv sync → uv run python -m crawler.jobs.run --save
 ```
+
+Detalhes do cron-job.org: [github-actions.md](./github-actions.md).
 
 **Secrets:**
 

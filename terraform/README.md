@@ -97,7 +97,7 @@ Na CI, `NEON_ORG_ID` e `TF_CLOUD_ORGANIZATION` vêm das **repository variables**
 
 - `history_retention_seconds = 21600` (6 h max on free plan)
 - Default endpoint autoscaling: 0.25–1 CU
-- Cold start após idle — relevante para cron do crawler
+- Cold start após idle — relevante para runs do crawler (cron-job.org)
 
 ## Troubleshooting
 

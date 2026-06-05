@@ -98,7 +98,7 @@ Configuração de secrets e validação: [`docs/github-actions.md`](docs/github-
 | Workflow | Função |
 |----------|--------|
 | `ci.yml` | Testes em todo PR/push |
-| `crawler.yml` | Coleta a cada 30 min (SP) + manual |
+| `crawler.yml` | Coleta via [cron-job.org](docs/github-actions.md) (30 min) + manual |
 | `terraform.yml` | `plan` em PR; `apply` no merge em `master` |
 | `migrate.yml` | Alembic em prod quando `alembic/versions/` muda |
 

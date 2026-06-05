@@ -1,9 +1,7 @@
 name: Crawler
 
 on:
-  schedule:
-    - cron: "13,43 * * * *"
-      timezone: America/Sao_Paulo
+  # Agendamento: cron-job.org → POST workflow_dispatch (ver docs/github-actions.md)
   workflow_dispatch:
 
 concurrency:

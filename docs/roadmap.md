@@ -25,7 +25,7 @@ Fase 4   →  Machine Learning (se justificado)
 - [ ] Modelo `wait_time_observations` + migração Alembic — `src/core/`
 - [ ] Job de coleta com retry e `scrape_status` — `src/crawler/jobs/`
 - [x] Persistência local (`save_observations`) — `src/core/database/repository.py`
-- [x] GitHub Actions: crawler (cron :00/:30) + CI (`pytest`) — [`docs/github-actions.md`](./github-actions.md)
+- [x] GitHub Actions: crawler (cron-job.org 30 min + `workflow_dispatch`) + CI — [`docs/github-actions.md`](./github-actions.md)
 - [x] GHA `terraform plan` em PRs com mudanças em `terraform/`
 - [x] GHA `terraform apply` no merge em `master` (infra prod)
 - [x] GHA `alembic upgrade head` no merge em `master` quando `alembic/versions/` mudar

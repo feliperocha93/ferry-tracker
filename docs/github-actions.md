@@ -5,7 +5,7 @@ Workflows em [`.github/workflows/`](../.github/workflows/).
 | Workflow | Gatilho | Função |
 |----------|---------|--------|
 | `ci.yml` | push / PR em `master` ou `main` | `pytest` (sem Neon, sem SEMIL live) |
-| `crawler.yml` | cron `:00`/`:30` SP + manual | Coleta + persistência em prod |
+| `crawler.yml` | [cron-job.org](https://cron-job.org) (30 min) + manual | Coleta + persistência em prod |
 | `terraform.yml` | PR ou push com mudanças em `terraform/` | `plan` (PR) / `apply` (push `master`) |
 | `migrate.yml` | push em `master` com mudanças em `alembic/versions/` | `alembic upgrade head` em prod |
 
@@ -79,7 +79,8 @@ Depois disso, `make tf-plan` local também usa o state remoto (mesmas env vars).
 
 ### Crawler
 
-- **Actions** → **Crawler** → **Run workflow**
+- **Actions** → **Crawler** → **Run workflow** (manual)
+- Ou aguardar disparo do [cron-job.org](#agendamento-do-crawler-cron-joborg)
 - Conferir 8 inserts no Neon; repetir no mesmo slot → sem duplicatas
 
 ### Terraform
@@ -91,6 +92,57 @@ Depois disso, `make tf-plan` local também usa o state remoto (mesmas env vars).
 
 - PR com nova revisão em `alembic/versions/` → após merge, workflow **Migrate** aplica em prod
 
-## Cron do crawler
+## Agendamento do crawler (cron-job.org)
 
-`0,30 * * * *` com `timezone: America/Sao_Paulo` — alinhado aos slots de coleta do SEMIL.
+O `schedule` nativo do GitHub Actions foi removido (atrasos e baixa previsibilidade). O workflow `crawler.yml` dispara só via **`workflow_dispatch`**, acionado a cada **30 minutos** pelo [cron-job.org](https://cron-job.org).
+
+### Por que não GitHub `schedule`?
+
+- Runs podem atrasar vários minutos (ou falhar em fila alta)
+- Só roda na branch padrão; repositório inativo pausa o cron
+- [cron-job.org](https://cron-job.org) chama a API do GitHub com horário mais estável (acompanhar nos primeiros dias)
+
+### 1. Token fine-grained (GitHub)
+
+1. **Settings** → **Developer settings** → **Fine-grained personal access tokens**
+2. Repositório: `ferry-tracker` (ajuste se o nome no GitHub for outro)
+3. Permissões: **Actions** → Read and write; **Contents** → Read
+4. Guardar o token — usar só no cron-job.org (não commitar)
+
+### 2. Job no cron-job.org
+
+| Campo | Valor |
+|-------|--------|
+| **URL** | `https://api.github.com/repos/feliperocha93/ferry-tracker/actions/workflows/crawler.yml/dispatches` |
+| **Método** | `POST` |
+| **Schedule** | A cada 30 min (ex.: `*/30 * * * *`, timezone `America/Sao_Paulo`) |
+| **Body** | `{"ref":"master"}` |
+
+**Headers:**
+
+```text
+Accept: application/vnd.github+json
+Authorization: Bearer <seu-token>
+X-GitHub-Api-Version: 2022-11-28
+Content-Type: application/json
+```
+
+**Sucesso:** HTTP **204** (sem corpo). Conferir em **Actions** → **Crawler** → evento `workflow_dispatch`.
+
+### 3. Teste manual (curl)
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}\n" -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  -H "Content-Type: application/json" \
+  -d '{"ref":"master"}' \
+  https://api.github.com/repos/feliperocha93/ferry-tracker/actions/workflows/crawler.yml/dispatches
+```
+
+Esperado: `204`.
+
+### Slots no banco
+
+O horário do cron-job.org **não** define `collected_at`. O job calcula o slot `:00` ou `:30` (America/Sao_Paulo) no momento da execução (`current_collection_slot()`). Pequenos atrasos do cron-job ou do GHA ainda caem no slot correto se rodarem antes do próximo meia-hora.
