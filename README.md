@@ -102,7 +102,7 @@ Configuração de secrets e validação: [`docs/github-actions.md`](docs/github-
 | `terraform.yml` | `plan` em PR; `apply` no merge em `master` |
 | `migrate.yml` | Alembic em prod quando `alembic/versions/` muda |
 
-**Secrets:** `DATABASE_URL`, `NEON_API_KEY`, `TF_API_TOKEN`  
+**Secrets:** `DATABASE_URL`, `NEON_API_KEY`, `TF_TOKEN_app_terraform_io`  
 **Variables:** `TF_CLOUD_ORGANIZATION`, `NEON_ORG_ID`
 
 Migrar state Terraform para o Cloud **antes** do primeiro apply na CI — ver [`terraform/README.md`](terraform/README.md).
@@ -114,7 +114,7 @@ Ver [`terraform/README.md`](terraform/README.md). Validação local:
 ```bash
 export NEON_API_KEY="napi_..."
 export TF_CLOUD_ORGANIZATION="sua-org"
-export TF_API_TOKEN="seu-token"
+export TF_TOKEN_app_terraform_io="seu-token"
 make tf-init && make tf-plan
 ```
 

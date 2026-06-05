@@ -19,7 +19,7 @@ Repositório → **Settings** → **Secrets and variables** → **Actions**.
 |------|----------|-----------|
 | `DATABASE_URL` | `crawler`, `migrate` | `postgresql+psycopg://...` (Neon prod) |
 | `NEON_API_KEY` | `terraform` | API key Neon |
-| `TF_API_TOKEN` | `terraform` | [User token](https://app.terraform.io/app/settings/tokens) do Terraform Cloud |
+| `TF_TOKEN_app_terraform_io` | `terraform` | [User token](https://app.terraform.io/app/settings/tokens) do Terraform Cloud |
 
 ### Variables (repository)
 
@@ -34,8 +34,24 @@ SendGrid (`SENDGRID_*`, `ALERT_EMAIL_*`) — fase 0.8; opcional criar os secrets
 
 1. Criar conta em [app.terraform.io](https://app.terraform.io/)
 2. Criar workspace **`ferry-wait`** (mesmo nome do `versions.tf`)
-3. Gerar **User API token** → secret `TF_API_TOKEN` no GitHub
+3. Gerar **User API token** → secret `TF_TOKEN_app_terraform_io` no GitHub
 4. Definir variable `TF_CLOUD_ORGANIZATION` no GitHub
+
+### Ajustes no workspace TFC (`ferry-wait`)
+
+No [workspace ferry-wait](https://app.terraform.io/app/ferry-wait/workspaces/ferry-wait):
+
+1. **Settings → General → Execution mode** → **Local**  
+   (com **Remote**, o plan roda no TFC e não acha `../../modules/database`.)
+2. **Terraform Version** → **Latest** (ou `>= 1.5`) — evite `~> 1.9.0`, que só aceita 1.9.x.
+
+### Debug local
+
+```bash
+cp terraform/environments/prod/.env.terraform.example terraform/environments/prod/.env.terraform
+# preencher TF_TOKEN_app_terraform_io + NEON_API_KEY
+make tf-check-env && make tf-init && make tf-plan
+```
 
 ### Migrar state do bootstrap local
 
@@ -44,7 +60,7 @@ Se você já rodou `terraform apply` local com backend `local`:
 ```bash
 cd terraform/environments/prod
 export TF_CLOUD_ORGANIZATION="sua-org"
-export TF_API_TOKEN="seu-token"
+export TF_TOKEN_app_terraform_io="seu-token"
 export NEON_API_KEY="napi_..."
 
 terraform init -migrate-state

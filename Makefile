@@ -23,7 +23,7 @@ UV_ENV_FILE := $(if $(wildcard .env),--env-file .env,)
 
 TF_DIR := terraform/environments/prod
 
-.PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl-dry-fixture crawl crawl-fixture tf-init tf-plan
+.PHONY: help install test lint db-up db-down db-logs migrate migrate-new crawl-dry crawl-dry-fixture crawl crawl-fixture tf-init tf-plan tf-check-env
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -64,8 +64,14 @@ crawl: ## Run crawler and persist observations
 crawl-fixture: ## Persist observations from fixtures/semil_sample.html
 	$(UV) run $(UV_ENV_FILE) python -m crawler.jobs.run --save --html-file src/crawler/parsers/fixtures/semil_sample.html
 
-tf-init: ## Terraform init (required before tf-plan; also run in CI)
-	$(TF) -chdir=$(TF_DIR) init
+tf-init: ## Terraform init (first time: may prompt to migrate state — answer yes)
+	@printf 'yes\n' | bash scripts/tf.sh init -ignore-remote-version 2>/dev/null || bash scripts/tf.sh init
 
-tf-plan: ## Terraform plan (NEON_API_KEY, terraform.tfvars; TFC: TF_API_TOKEN + TF_CLOUD_ORGANIZATION)
-	$(TF) -chdir=$(TF_DIR) plan
+tf-plan: ## Terraform plan (requires .env.terraform or exported TF_* + NEON_API_KEY)
+	@bash scripts/tf.sh plan
+
+tf-check-env: ## Verify TFC/Neon env vars (prints terraform version)
+	@bash -c 'set -a; [ -f terraform/environments/prod/.env.terraform ] && . terraform/environments/prod/.env.terraform; set +a; \
+	  for v in TF_CLOUD_ORGANIZATION NEON_API_KEY TF_TOKEN_app_terraform_io; do \
+	    eval "val=\$$v"; [ -n "$$val" ] || { echo "Missing $$v" >&2; exit 1; }; \
+	    echo "ok $$v"; done; terraform version'

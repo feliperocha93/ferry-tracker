@@ -27,4 +27,5 @@ build/
 *.tfstate
 *.tfstate.*
 terraform/environments/**/terraform.tfvars
+terraform/environments/**/.env.terraform
 terraform/environments/**/.terraform.tfstate.lock.info

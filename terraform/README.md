@@ -52,7 +52,7 @@ Obrigatório **antes** de confiar no workflow `terraform.yml` na CI:
 ```bash
 cd terraform/environments/prod
 export TF_CLOUD_ORGANIZATION="sua-org"
-export TF_API_TOKEN="seu-token"
+export TF_TOKEN_app_terraform_io="seu-token"
 export NEON_API_KEY="napi_..."
 
 terraform init -migrate-state
@@ -62,15 +62,20 @@ Criar workspace `ferry-wait` na UI do TFC (ou deixar o init criar).
 
 ## Day-to-day (local)
 
-```bash
-export NEON_API_KEY="napi_..."
-export TF_CLOUD_ORGANIZATION="sua-org"
-export TF_API_TOKEN="seu-token"
-# neon_org_id: terraform.tfvars ou -var
+Credenciais num arquivo (recomendado — evita export só do `NEON_API_KEY` e esquecer o TFC):
 
+```bash
+cd terraform/environments/prod
+cp .env.terraform.example .env.terraform
+# Editar: TF_TOKEN_app_terraform_io, NEON_API_KEY (TF_CLOUD_ORGANIZATION já é ferry-wait)
+
+cd ../../..
+make tf-check-env   # sanity check
 make tf-init
 make tf-plan
 ```
+
+Alternativa: `export TF_CLOUD_ORGANIZATION TF_TOKEN_app_terraform_io NEON_API_KEY` **na mesma sessão** antes de `terraform init`. Só `NEON_API_KEY` não basta — o erro *Required token could not be found* é falta de `TF_TOKEN_app_terraform_io` ou `terraform login`.
 
 Na CI, `NEON_ORG_ID` e `TF_CLOUD_ORGANIZATION` vêm das **repository variables** do GitHub; `neon_org_id` não precisa de `terraform.tfvars` no runner.
 
@@ -98,7 +103,9 @@ Na CI, `NEON_ORG_ID` e `TF_CLOUD_ORGANIZATION` vêm das **repository variables**
 
 | Issue | Fix |
 |-------|-----|
-| CI plan quer **criar** projeto Neon de novo | State não migrado para TFC — rode `terraform init -migrate-state` |
+| *Required token could not be found* | `TF_TOKEN_app_terraform_io` em `.env.terraform` |
+| *Incompatible Terraform version* | TFC workspace → versão **Latest** (não `~> 1.9.0`) |
+| *Unreadable module directory* | TFC workspace → **Execution mode: Local** |
+| CI plan quer **criar** Neon de novo | State não migrado — `make tf-init` e responda `yes` |
 | `org_id` required | `NEON_ORG_ID` no GitHub ou `neon_org_id` em `terraform.tfvars` |
 | `psycopg2` no migrate | Use `postgresql+psycopg://` em `DATABASE_URL` |
-| TFC login failed | `TF_API_TOKEN` + `TF_CLOUD_ORGANIZATION` |
